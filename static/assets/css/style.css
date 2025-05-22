@@ -1,0 +1,266 @@
+:root {
+    --azul-claro: #e6f0fa;
+    --azul-principal: #0074cc;
+    --azul-escuro: #003366;
+    --branco: #ffffff;
+    --cinza-texto: #434343;
+}
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Poppins", sans-serif;
+    background: var(--azul-claro);
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--cinza-texto);
+    font-size: 24px;
+    margin: 0;
+    overflow: hidden;
+}
+
+/* Header da Página */
+.headerContainer {
+    position: fixed;
+    top: 10px;
+    display: flex;
+    width: 90%;
+    align-items: center;
+    justify-content: center;
+}
+
+.headerContainer img {
+    height: 100px;
+    transform: translateX(30%);
+    
+}
+
+.tituloHeader {
+    width: 3000px;
+    height: 60px; /* Largura do retângulo do título */
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background-color: var(--azul-escuro);
+    color: white;
+    font-size: 24px; /* Título da página */
+    text-transform: uppercase;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.relogioHeader {
+    background-color: #1E90FF;
+    color: white;
+    height: 60px; /* Largura do retângulo da hora */
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    width: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Conteúdo Principal da Página */
+.mainLinhas {
+    display: flex;
+    gap: 32px;
+}
+
+.sectionLinhas {
+    background-color: var(--branco);
+    border-radius: 16px;
+    box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    width: 450px; /* Largura dos cartões */
+   /* height: 300px; /* Altura dos cartões */
+}
+
+.linhaCabecalho {
+    background-color: var(--azul-principal);
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+    padding: 12px 0;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    margin-bottom: 20px;
+}
+
+.divHorarios {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    margin-bottom: 20px;
+}
+
+table {
+    font-size: 16px;
+    margin: 0 auto; /* Centraliza a tabela no cartão */
+    border-collapse: collapse;
+    width: 90%; /* Garante que a tabela ocupe a maior parte do cartão */
+}
+
+table th, table td {
+    padding: 8px 16px;
+}
+
+table th {
+    background-color: #2361a0;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    color: #FFF;
+    font-weight: bold;
+}
+
+.colunaData {
+    text-align: center;
+}
+
+.colunaHora {
+    text-align: center;
+}
+
+.colunaAcoes {
+    text-align: center;
+    white-space: nowrap;
+}
+
+.btnAcao.excluir {
+    background-color: rgb(218, 46, 46);
+    padding: 2px 6px;
+    font-size: 16px;
+    border-radius: 4px;
+    color: #FFF;
+    cursor: pointer;
+    border: none;
+}
+
+.btnAcao.editar {
+    background-color: var(--azul-principal);
+    color: #FFF;
+    padding: 2px 6px;
+    font-size: 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    border: none;
+}
+
+.btnAcao:hover {
+    color: rgb(153, 30, 30);
+}
+
+.btnAcao.editar:hover {
+    color: rgb(20, 35, 170);
+}
+
+.container594, .container595, .container596 {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.divStatusPal {
+    font-size: 18px;
+    background-color: var(--azul-principal);
+    padding: 8px 16px;
+    text-align: center;
+    margin-top: 10px;
+    width: 450px; /* Mesma largura do cartão */
+    margin-left: auto;
+    margin-right: auto;
+    color: #FFF;
+    border-radius: 10px;
+}
+
+.spanPaletizadora {
+    font-weight: bold;
+}
+
+.modalEdicao {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0; top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 10% auto;
+    padding: 20px;
+    border-radius: 10px;
+    width: 300px;
+    position: relative;
+}
+
+.close {
+    position: absolute;
+    top: 10px; right: 15px;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+/* Footer da página */
+footer {
+    display: none;
+}
+
+.navBar {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    max-width: 600px;
+    background-color: var(--azul-escuro);
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    padding: 16px 0;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.btnNav {
+    background: none;
+    border: none;
+    color: var(--branco);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 10px;
+    width: 120px;
+    border-radius: 10px;
+}
+
+.btnNav:hover {
+    background-color: #0051a2;
+}
+
+.btnNav i {
+    font-size: 28px;
+    margin-bottom: 4px;
+}
