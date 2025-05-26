@@ -1,8 +1,18 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+import csv
 import pyodbc
+from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
+
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Permite requisições de qualquer origem (modifique conforme necessário)
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
+    allow_headers=["*"]
+)
 
 # Configuração do banco de dados
 DB_CONFIG = {
@@ -23,50 +33,212 @@ def get_db_connection():
         f"PWD={DB_CONFIG['pwd']}"
     )
 
-# Classe modelo banco de dados
-class UpdateData(BaseModel):
-    data: str
-    hora: str
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
-
+### 594 ###
 # Endpoint para buscar dados
 @app.get("/dados")
 def get_dados():
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT id, FORMAT(datahora, 'dd/MM/yyyy') AS data, FORMAT(datahora, 'HH:mm') AS hora FROM contagem_pallets")
-    dados = [{"id": row.id, "data": row.data, "hora": row.hora} for row in cursor.fetchall()]
-    conn.close()
+    dados = []
+    with open("timestamp_fila594.csv", newline='', encoding='utf-8') as csvfile:
+        reader = csv.reader(csvfile)
+        for row in reader:
+            dados.append({"hora": row[0]})  # Considerando que cada linha contém apenas a hora
     return dados
 
-# Endpoint para atualizar um registro
-@app.put("/dados/{id}")
-def update_dado(id: int, request: UpdateData):
-    conn = get_db_connection()
-    cursor = conn.cursor()
 
-    # Ajustando a conversão correta da data e hora
-    datahora_formatada = f"{request.data} {request.hora}:00"
+# Endpoint para atualizar um registro
+class UpdateData(BaseModel):
+    hora: str
+
+@app.put("/dados/{linha}")
+def update_dado(linha: int, request: UpdateData):
+    arquivo_csv = "timestamp_fila594.csv"
 
     try:
-        cursor.execute(
-            "UPDATE contagem_pallets SET datahora = CONVERT(datetime, ?, 103) WHERE id = ?",
-            (datahora_formatada, id)
-        )
-        conn.commit()
-        conn.close()
-        return {"message": "Registro atualizado com sucesso!"}
-    except pyodbc.Error as e:
-        conn.rollback()
-        return {"error": f"Erro ao atualizar: {e}"}
-    
+        # Ler os dados do CSV
+        with open(arquivo_csv, newline='', encoding='utf-8') as csvfile:
+            reader = list(csv.reader(csvfile))
+
+        # Verificar se a linha é válida
+        if linha < 0 or linha >= len(reader):
+            raise HTTPException(status_code=404, detail="Linha não encontrada")
+
+        # Atualizar a hora na linha correspondente
+        reader[linha][0] = request.hora
+
+        # Escrever as mudanças no CSV
+        with open(arquivo_csv, 'w', newline='', encoding='utf-8') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerows(reader)
+
+        return {"message": "Horário atualizado com sucesso!"}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao atualizar: {e}")
+        
 # Endpoint para excluir um registro
-@app.delete("/dados/{id}")
-def delete_dado(id: int):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("DELETE FROM contagem_pallets WHERE id = ?", (id,))
-    conn.commit()
-    conn.close()
-    return {"message": "Registro excluído com sucesso!"}
+@app.delete("/dados/{linha}")
+def delete_dado(linha: int):
+    arquivo_csv = "timestamp_fila594.csv"
+
+    try:
+        # Ler os dados do CSV
+        with open(arquivo_csv, newline='', encoding='utf-8') as csvfile:
+            reader = list(csv.reader(csvfile))
+
+        # Verificar se a linha é válida
+        if linha < 0 or linha >= len(reader):
+            raise HTTPException(status_code=404, detail="Linha não encontrada")
+
+        # Remover a linha do CSV
+        del reader[linha]
+
+        # Escrever as mudanças no CSV
+        with open(arquivo_csv, 'w', newline='', encoding='utf-8') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerows(reader)
+
+        return {"message": "Linha excluída com sucesso!"}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao excluir: {e}")
+    
+### 595 ###
+# Endpoint para buscar dados
+@app.get("/dados595")
+def get_dados():
+    dados = []
+    with open("timestamp_fila595.csv", newline='', encoding='utf-8') as csvfile:
+        reader = csv.reader(csvfile)
+        for row in reader:
+            dados.append({"hora": row[0]})  # Considerando que cada linha contém apenas a hora
+    return dados
+
+
+# Endpoint para atualizar um registro
+class UpdateData(BaseModel):
+    hora: str
+
+@app.put("/dados595/{linha}")
+def update_dado(linha: int, request: UpdateData):
+    arquivo_csv = "timestamp_fila595.csv"
+
+    try:
+        # Ler os dados do CSV
+        with open(arquivo_csv, newline='', encoding='utf-8') as csvfile:
+            reader = list(csv.reader(csvfile))
+
+        # Verificar se a linha é válida
+        if linha < 0 or linha >= len(reader):
+            raise HTTPException(status_code=404, detail="Linha não encontrada")
+
+        # Atualizar a hora na linha correspondente
+        reader[linha][0] = request.hora
+
+        # Escrever as mudanças no CSV
+        with open(arquivo_csv, 'w', newline='', encoding='utf-8') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerows(reader)
+
+        return {"message": "Horário atualizado com sucesso!"}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao atualizar: {e}")
+        
+# Endpoint para excluir um registro
+@app.delete("/dados595/{linha}")
+def delete_dado(linha: int):
+    arquivo_csv = "timestamp_fila595.csv"
+
+    try:
+        # Ler os dados do CSV
+        with open(arquivo_csv, newline='', encoding='utf-8') as csvfile:
+            reader = list(csv.reader(csvfile))
+
+        # Verificar se a linha é válida
+        if linha < 0 or linha >= len(reader):
+            raise HTTPException(status_code=404, detail="Linha não encontrada")
+
+        # Remover a linha do CSV
+        del reader[linha]
+
+        # Escrever as mudanças no CSV
+        with open(arquivo_csv, 'w', newline='', encoding='utf-8') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerows(reader)
+
+        return {"message": "Linha excluída com sucesso!"}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao excluir: {e}")
+
+### 596 ###
+# Endpoint para buscar dados
+@app.get("/dados596")
+def get_dados():
+    dados = []
+    with open("timestamp_fila596.csv", newline='', encoding='utf-8') as csvfile:
+        reader = csv.reader(csvfile)
+        for row in reader:
+            dados.append({"hora": row[0]})  # Considerando que cada linha contém apenas a hora
+    return dados
+
+
+# Endpoint para atualizar um registro
+class UpdateData(BaseModel):
+    hora: str
+
+@app.put("/dados596/{linha}")
+def update_dado(linha: int, request: UpdateData):
+    arquivo_csv = "timestamp_fila596.csv"
+
+    try:
+        # Ler os dados do CSV
+        with open(arquivo_csv, newline='', encoding='utf-8') as csvfile:
+            reader = list(csv.reader(csvfile))
+
+        # Verificar se a linha é válida
+        if linha < 0 or linha >= len(reader):
+            raise HTTPException(status_code=404, detail="Linha não encontrada")
+
+        # Atualizar a hora na linha correspondente
+        reader[linha][0] = request.hora
+
+        # Escrever as mudanças no CSV
+        with open(arquivo_csv, 'w', newline='', encoding='utf-8') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerows(reader)
+
+        return {"message": "Horário atualizado com sucesso!"}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao atualizar: {e}")
+        
+# Endpoint para excluir um registro
+@app.delete("/dados596/{linha}")
+def delete_dado(linha: int):
+    arquivo_csv = "timestamp_fila596.csv"
+
+    try:
+        # Ler os dados do CSV
+        with open(arquivo_csv, newline='', encoding='utf-8') as csvfile:
+            reader = list(csv.reader(csvfile))
+
+        # Verificar se a linha é válida
+        if linha < 0 or linha >= len(reader):
+            raise HTTPException(status_code=404, detail="Linha não encontrada")
+
+        # Remover a linha do CSV
+        del reader[linha]
+
+        # Escrever as mudanças no CSV
+        with open(arquivo_csv, 'w', newline='', encoding='utf-8') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerows(reader)
+
+        return {"message": "Linha excluída com sucesso!"}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao excluir: {e}")
