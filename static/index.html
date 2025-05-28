@@ -133,15 +133,19 @@ async function carregarDados(url, tabelaId) {
         let tabela = document.getElementById(tabelaId);
         tabela.innerHTML = ""; // Limpa antes de preencher
 
+        const hoje = new Date();
+        const dataFormatada = hoje.toLocaleDateString("pt-BR"); 
+
         dados.forEach((item, index) => { // Usa índice da linha como identificador
             let linha = tabela.insertRow();
             linha.innerHTML = `
+                <td class="colunaData">${dataFormatada}</td>
                 <td class="colunaHora">${item.hora}</td>
                 <td class="colunaAcoes">
-                    <button class="btnAcao editar" onclick="editar(${index}, '${item.hora}')">
+                    <button class="btnAcao editar" onclick="editar('${url}', ${index}, '${item.hora}')">
                         <i class="ri-edit-line"></i>
                     </button>
-                    <button class="btnAcao excluir" onclick="excluir(${index})">
+                    <button class="btnAcao excluir" onclick="excluir('${url}', ${index})">
                         <i class="ri-delete-bin-line"></i>
                     </button>
                 </td>
@@ -154,10 +158,75 @@ async function carregarDados(url, tabelaId) {
 
 // Carrega os dados das 3 tabelas ao abrir a página
 window.onload = () => {
-    carregarDados("http://127.0.0.1:8000/dados", "dadosTabela"); // Corrigido para `/dados594`
+    carregarDados("http://127.0.0.1:8000/dados", "dadosTabela");
     carregarDados("http://127.0.0.1:8000/dados595", "dadosTabela595");
     carregarDados("http://127.0.0.1:8000/dados596", "dadosTabela596");
 };
+
+// Função para abrir o modal de edição e atualizar dados
+function editar(urlBase, index, horaAtual) {
+    const modal = document.getElementById("modalEdicaoHora");
+    const inputHora = document.getElementById("novaHora");
+    inputHora.value = horaAtual; // Preenche com a hora atual
+    modal.style.display = "block";
+
+    // Capturar evento de fechar/cancelar
+    document.querySelector(".close").onclick = () => modal.style.display = "none";
+    document.getElementById("cancelarEdicao").onclick = () => modal.style.display = "none";
+
+    // Capturar evento de salvar edição
+    document.getElementById("salvarEdicao").onclick = async () => {
+        const novaHora = inputHora.value;
+
+        try {
+            const resposta = await fetch(`${urlBase}/${index}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ hora: novaHora })
+            });
+
+            if (resposta.ok) {
+                console.log(`Linha ${index} atualizada para: ${novaHora}`);
+                modal.style.display = "none";
+
+                // Recarregar os dados após a edição
+                carregarDados(urlBase, getTabelaId(urlBase));
+            } else {
+                console.error("Erro ao atualizar a hora.");
+            }
+        } catch (error) {
+            console.error("Erro na requisição:", error);
+        }
+    };
+}
+
+// Função para excluir registro
+async function excluir(urlBase, index) {
+    if (!confirm(`Tem certeza que deseja excluir a linha ${index}?`)) return;
+
+    try {
+        const resposta = await fetch(`${urlBase}/${index}`, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" }
+        });
+
+        if (resposta.ok) {
+            console.log(`Linha ${index} excluída com sucesso.`);
+            carregarDados(urlBase, getTabelaId(urlBase));
+        } else {
+            console.error("Erro ao excluir a linha.");
+        }
+    } catch (error) {
+        console.error("Erro na requisição:", error);
+    }
+}
+
+// Função para obter ID da tabela correspondente ao URL da API
+function getTabelaId(urlBase) {
+    if (urlBase.includes("dados595")) return "dadosTabela595";
+    if (urlBase.includes("dados596")) return "dadosTabela596";
+    return "dadosTabela";
+}
 </script>
 
 </body>

@@ -4,7 +4,10 @@ import csv
 import pyodbc
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-
+import uvicorn
+import threading
+from monitoramento_opcua import main as start_monitoramento
+from etiquetadora import main as start_etiquetadora
 
 app = FastAPI()
 app.add_middleware(
@@ -13,6 +16,22 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PUT", "DELETE"],
     allow_headers=["*"]
 )
+
+################################ ETIQUETADORA ###################################
+
+def run_monitoramento():
+    start_monitoramento()
+
+def run_etiquetadora():
+    start_etiquetadora()
+
+@app.on_event("startup")
+def startup_event():
+    # Executa os dois scripts em threads
+    threading.Thread(target=run_monitoramento, daemon=True).start()
+    threading.Thread(target=run_etiquetadora, daemon=True).start()
+
+###################################################################################
 
 # Configuração do banco de dados
 DB_CONFIG = {
@@ -44,7 +63,7 @@ def get_dados():
     with open("timestamp_fila594.csv", newline='', encoding='utf-8') as csvfile:
         reader = csv.reader(csvfile)
         for row in reader:
-            dados.append({"hora": row[0]})  # Considerando que cada linha contém apenas a hora
+            dados.append({"data": row[0],"hora": row[1]})  # Considerando que cada linha contém apenas a hora
     return dados
 
 
@@ -66,7 +85,7 @@ def update_dado(linha: int, request: UpdateData):
             raise HTTPException(status_code=404, detail="Linha não encontrada")
 
         # Atualizar a hora na linha correspondente
-        reader[linha][0] = request.hora
+        reader[linha][1] = request.hora
 
         # Escrever as mudanças no CSV
         with open(arquivo_csv, 'w', newline='', encoding='utf-8') as csvfile:
@@ -113,7 +132,7 @@ def get_dados():
     with open("timestamp_fila595.csv", newline='', encoding='utf-8') as csvfile:
         reader = csv.reader(csvfile)
         for row in reader:
-            dados.append({"hora": row[0]})  # Considerando que cada linha contém apenas a hora
+            dados.append({"data": row[0],"hora": row[1]})  # Considerando que cada linha contém apenas a hora
     return dados
 
 
@@ -135,7 +154,7 @@ def update_dado(linha: int, request: UpdateData):
             raise HTTPException(status_code=404, detail="Linha não encontrada")
 
         # Atualizar a hora na linha correspondente
-        reader[linha][0] = request.hora
+        reader[linha][1] = request.hora
 
         # Escrever as mudanças no CSV
         with open(arquivo_csv, 'w', newline='', encoding='utf-8') as csvfile:
@@ -182,7 +201,7 @@ def get_dados():
     with open("timestamp_fila596.csv", newline='', encoding='utf-8') as csvfile:
         reader = csv.reader(csvfile)
         for row in reader:
-            dados.append({"hora": row[0]})  # Considerando que cada linha contém apenas a hora
+            dados.append({"data": row[0], "hora": row[1]})  # Considerando que cada linha contém apenas a hora
     return dados
 
 
@@ -204,7 +223,7 @@ def update_dado(linha: int, request: UpdateData):
             raise HTTPException(status_code=404, detail="Linha não encontrada")
 
         # Atualizar a hora na linha correspondente
-        reader[linha][0] = request.hora
+        reader[linha][1] = request.hora
 
         # Escrever as mudanças no CSV
         with open(arquivo_csv, 'w', newline='', encoding='utf-8') as csvfile:
@@ -242,3 +261,7 @@ def delete_dado(linha: int):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao excluir: {e}")
+
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
